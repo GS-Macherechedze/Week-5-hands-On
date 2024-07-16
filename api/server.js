@@ -20,6 +20,7 @@ db.connect((err) => {
     if (err) {
         return console.log('Error connecting to MySQL:', err.message);
     }
+
     console.log('Connected to MySQL as id:', db.threadId);
 
     // Create database if it does not exist
@@ -49,8 +50,6 @@ db.connect((err) => {
     });
 });
 
-// create a database
-
 
 // User registration route
 app.post('/api/register', async(req, res) => {
@@ -59,7 +58,7 @@ app.post('/api/register', async(req, res) => {
         const user = `SELECT * FROM users WHERE email = ?`
 
         //
-        db.query(user, [req.body.email, req.body.username], (err, data) => {
+        db.query(user, [req.body.email], (err, data) => {
             if(data.length) return res.status(409).json({ "message": "User already exists!" });
 
             const salt = bcrypt.genSaltSync(10);
