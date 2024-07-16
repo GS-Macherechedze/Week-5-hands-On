@@ -59,7 +59,7 @@ app.post('/api/register', async(req, res) => {
         const user = `SELECT * FROM users WHERE email = ?`
 
         //
-        db.query(user, [req.body.email, req.body.username], (err, data) => {
+        db.query(user, [req.body.email], (err, data) => {
             if(data.length) return res.status(409).json({ "message": "User already exists!" });
 
             const salt = bcrypt.genSaltSync(10);
