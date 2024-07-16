@@ -2,9 +2,11 @@
 The aim of this project is to introduce you to the connection of MySQL database to NodeJs
 
 # Procedure
-- 1. Create a folder named api
-- 2. Using the terminal navigate to the api folder `cd api`
-- 3. Run the following command to install the necessary dependancies:
+- Create a folder named api.
+- Using the terminal navigate to the api folder <br>
+        `cd api`.
+- Run the following command to initalize the backend <br>
         `npm init -y`
+- Run the following command to install the necessary dependancies<br>
         `npm install express mysql2 bcrypt nodemon cors cookie-parser`
-- 4. Create a `server.js` file 
+- 4. Create a `server.js` file. 
