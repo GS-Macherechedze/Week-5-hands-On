@@ -21,12 +21,12 @@
             <i class="material-icons lock">lock</i> Login
         </div>
 
-        <form>
+        <form id="form">
             <div class="input">
                 <div class="input-addon">
                     <i class="material-icons">face</i>
                 </div>
-                <input id="username" placeholder="Username" type="text" required class="validate" autocomplete="off">
+                <input id="email" placeholder="Email" type="text" required class="validate" autocomplete="off">
             </div>
 
             <div class="clearfix"></div>
@@ -44,6 +44,7 @@
             </div>
 
             <input type="submit" value="Log In" />
+            <p id="auth-msg"></p>
         </form>
 
         <div class="forgot-password">
@@ -58,6 +59,9 @@
             <a href="./register.html"><button id="register-link">Register here</button></a>
         </div>
     </div>
+
+    <!-- script file -->
+    <script src="./login.js"></script>
 </body>
 
 </html>
