@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require('express')
 const app = express()
 const dotenv = require('dotenv');
 const mysql = require('mysql2');
@@ -30,7 +30,7 @@ db.connect((err) => {
 
         // Switch to the expense_tracker database
         db.changeUser({ database: 'expense_tracker' }, (err) => {
-            if (err) throw err;
+            if (err) return console.log(err);
             console.log('Switched to expense_tracker database');
 
             // Create users table if it does not exist
@@ -43,7 +43,8 @@ db.connect((err) => {
                 )
             `;
             db.query(createUsersTable, (err, result) => {
-                if (err) throw err;
+                if (err) return console.log(err);
+
                 console.log('Users table checked/created');
             });
         });
@@ -59,7 +60,7 @@ app.post('/api/register', async(req, res) => {
 
         //
         db.query(user, [req.body.email], (err, data) => {
-            if(data.length) return res.status(409).json({ "message": "User already exists!" });
+            if(data.length) return res.status(409).json("User already exists!");
 
             const salt = bcrypt.genSaltSync(10);
             const hashedPassword = bcrypt.hashSync(req.body.password, salt);
@@ -73,14 +74,14 @@ app.post('/api/register', async(req, res) => {
 
             // adding the new user to the database
             db.query(newUser, [value], (err, data) => {
-                if(err) return res.status(500).json({ "message": "Something went wrong!" });
+                if(err) return res.status(500).json("Something went wrong!");
 
-                return res.status(200).json({ "message": "User created successfully!" })
+                return res.status(200).json("User created successfully!")
             })
         })
         
     } catch(err) {
-        res.status(500).json({ "message": "Something went wrong" })
+        res.status(500).json("Something went wrong")
     }
 })
 
@@ -91,17 +92,17 @@ app.post('/api/login', async(req, res) => {
         const user = `SELECT * FROM users WHERE email = ?`
         
         db.query(user, [req.body.email], (err, data) => {
-            if(data.length === 0) return res.status(404).json({ "message": "User not found!" })
+            if(data.length === 0) return res.status(404).json("User not found!")
 
             const isPasswordValid = bcrypt.compareSync(req.body.password, data[0].password);
 
-            if(!isPasswordValid) return res.status(400).json({ "message": "Invalid email or password" });
+            if(!isPasswordValid) return res.status(400).json("Invalid email or password");
 
-            return res.status(200).json({ "message": "Login successful" });
+            return res.status(200).json("Login successful");
         })
     } catch(err) {
         res.status(500).json(err)
-    } 
+    }
 })
 
 const PORT = process.env.PORT || 3000
