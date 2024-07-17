@@ -1,111 +1,115 @@
 const express = require('express')
 const app = express()
+const mysql = require('mysql2')
+const cors = require('cors');
+const bcrypt = require('bcrypt')
 const dotenv = require('dotenv');
-const mysql = require('mysql2');
-const cors = require('cors')
-const bcrypt = require('bcrypt');
 
-
-app.use(express.json());
-app.use(cors());
+app.use(express.json())
+app.use(cors())
 dotenv.config();
 
+// connection to the database
 const db = mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD
 })
 
+// check if connection works
 db.connect((err) => {
-    if (err) {
-        return console.log('Error connecting to MySQL:', err.message);
-    }
+    // if connection does not work
+    if(err) return console.log("Error connceting to MySQL")
 
-    console.log('Connected to MySQL as id:', db.threadId);
+    // if connection works succesfull
+    console.log("Connected to MySQL as id: ", db.threadId)
 
-    // Create database if it does not exist
+    //create a database
     db.query(`CREATE DATABASE IF NOT EXISTS expense_tracker`, (err, result) => {
-        if (err) throw err;
-        console.log('Database expense_tracker checked/created');
+        if(err) return console.log(err) // error while creating database
 
-        // Switch to the expense_tracker database
-        db.changeUser({ database: 'expense_tracker' }, (err) => {
-            if (err) return console.log(err);
-            console.log('Switched to expense_tracker database');
+        console.log("database expense_tracker created/checked");// db created successfull
 
-            // Create users table if it does not exist
-            const createUsersTable = `
+        //change our database
+        db.changeUser({ database: 'expense_tracker' }, (err, result) => {
+            if(err) return console.log(err) // if error changing the database
+
+            console.log("expense_tracker is in use"); // successfull use of database
+
+            //create users table
+            const usersTable = `
                 CREATE TABLE IF NOT EXISTS users (
                     id INT AUTO_INCREMENT PRIMARY KEY,
-                    email VARCHAR(255) NOT NULL UNIQUE,
-                    username VARCHAR(255) NOT NULL,
-                    password VARCHAR(255) NOT NULL
+                    email VARCHAR(100) NOT NULL UNIQUE,
+                    username VARCHAR(50) NOT NULL,
+                    password VARCHAR(255)
                 )
             `;
-            db.query(createUsersTable, (err, result) => {
-                if (err) return console.log(err);
 
-                console.log('Users table checked/created');
-            });
-        });
-    });
-});
+            db.query(usersTable, (err, result) => {
+                if(err) return console.log(err) // if error creating table
 
-
-// User registration route
-app.post('/api/register', async(req, res) => {
-    try{
-        // check if user email exists
-        const user = `SELECT * FROM users WHERE email = ?`
-
-        //
-        db.query(user, [req.body.email], (err, data) => {
-            if(data.length) return res.status(409).json({ "message": "User already exists!" });
-
-            const salt = bcrypt.genSaltSync(10);
-            const hashedPassword = bcrypt.hashSync(req.body.password, salt);
-
-            const newUser = `INSERT INTO users(email, username, password) VALUES (?) `
-            value = [
-                req.body.email,
-                req.body.username,
-                hashedPassword
-            ]
-
-            // adding the new user to the database
-            db.query(newUser, [value], (err, data) => {
-                if(err) return res.status(500).json("Something went wrong!");
-
-                return res.status(200).json("User created successfully!")
+                console.log("users table created/checked") //user table created successfully
             })
         })
-        
-    } catch(err) {
-        res.status(500).json("Something went wrong")
-    }
+    })
 })
 
+//user registration route
+app.post('/api/register', async(req, res) => {
+    try{
+        const users = `SELECT * FROM users WHERE email = ?`
+        //check if user exists
+        db.query(users, [req.body.email], (err, data) => {
+            // if we find user with same email in database
+            if(data.length > 0) return res.status(409).json("User already exists");
+
+            // If we don't find user email in database
+            //hashing password(encryption)
+            const salt = bcrypt.genSaltSync(10)
+            const hashedPassword = bcrypt.hashSync(req.body.password, salt)
+
+            // query to create new user
+            const newUser = `INSERT INTO users(email, username, password) VALUES (?)`
+            value = [ req.body.email, req.body.username, hashedPassword ]
+
+            db.query(newUser, [value], (err, data) => {
+                if(err) return res.status(400).json("something went wrong")
+
+                return res.status(200).json("user created successfully")
+            })
+        })
+    }
+    catch(err) {
+        res.status(500).json("Internal Server Error")
+    }
+})
 
 // user login route
 app.post('/api/login', async(req, res) => {
     try{
-        const user = `SELECT * FROM users WHERE email = ?`
-        
-        db.query(user, [req.body.email], (err, data) => {
+        // check existing user
+        const users = `SELECT * FROM users WHERE email = ?`
+        db.query(users, [req.body.email], (err, data) => {
+            // if there is no user
             if(data.length === 0) return res.status(404).json("User not found!")
+            
+            //if user exists and we compare password
+            const isPasswordValid = bcrypt.compareSync(req.body.password, data[0].password)
 
-            const isPasswordValid = bcrypt.compareSync(req.body.password, data[0].password);
+            // if passwords don't much
+            if(!isPasswordValid) return res.status(400).json("Invalid email or password!")
 
-            if(!isPasswordValid) return res.status(400).json("Invalid email or password");
-
-            return res.status(200).json("Login successful");
+            //passwords match we accept
+            return res.status(200).json("Login Successful")
         })
-    } catch(err) {
-        res.status(500).json(err)
+    } 
+    catch(err) {
+        res.status(500).json("Internal Server Error")
     }
 })
 
-const PORT = process.env.PORT || 3000
-app.listen(PORT, () => {
-    console.log(`server is running on PORT ${PORT}`)
+// starts our server
+app.listen(3000, () => {
+    console.log('server is running on PORT 3000...')   
 })
