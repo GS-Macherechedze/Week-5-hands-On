@@ -74,9 +74,9 @@ app.post('/api/register', async(req, res) => {
             value = [ req.body.email, req.body.username, hashedPassword ]
 
             db.query(newUser, [value], (err, data) => {
-                if(err) return res.status(400).json("something went wrong")
+                if(err) return res.status(400).json("Something went wrong")
 
-                return res.status(200).json("user created successfully")
+                return res.status(201).json("User created successfully")
             })
         })
     }
@@ -92,16 +92,16 @@ app.post('/api/login', async(req, res) => {
         const users = `SELECT * FROM users WHERE email = ?`
         db.query(users, [req.body.email], (err, data) => {
             // if there is no user
-            if(data.length === 0) return res.status(404).json("User not found!")
+            if(data.length === 0) return res.status(404).json("User not found")
             
             //if user exists and we compare password
             const isPasswordValid = bcrypt.compareSync(req.body.password, data[0].password)
 
             // if passwords don't much
-            if(!isPasswordValid) return res.status(400).json("Invalid email or password!")
+            if(!isPasswordValid) return res.status(400).json("Invalid Email or Password")
 
             //passwords match we accept
-            return res.status(200).json("Login Successful")
+            return res.status(200).json("Login sucessful")
         })
     } 
     catch(err) {
