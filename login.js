@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        alert('clicked')
         
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
@@ -20,14 +19,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ email, password })
             });
 
+            const data = await response.json()
+
             if(!response.ok) {
-                authMsg.textContent = "Invalid email or password!"
+                authMsg.textContent = data
             } else {
-                authMsg.textContent = "Login successfull"
+                authMsg.textContent = data
             }
 
         } catch (err) {
-            authMsg.textContent = 'An error occured'
+            authMsg.textContent = err
         }
     })
 
