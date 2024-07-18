@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('form')
-    
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -9,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         const authMsg = document.getElementById('auth-msg');
-
 
         try{
             const response = await fetch('http://localhost:3000/api/register', {
@@ -20,16 +18,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ email, username, password })
             });
 
-
             const data = await response.json();
-            console.log(data)
 
             if(!response.ok) {
                 authMsg.textContent = data
             } else {
                 authMsg.textContent = data
             }
-
         } catch (err) {
             authMsg.textContent = err
         }
