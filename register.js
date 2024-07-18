@@ -20,16 +20,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ email, username, password })
             });
 
-            const data = response.data;
+
+            const data = await response.json();
+            console.log(data)
 
             if(!response.ok) {
-                authMsg.textContent = "User already exists!"
+                authMsg.textContent = data
             } else {
-                authMsg.textContent = "User created successfully"
+                authMsg.textContent = data
             }
 
         } catch (err) {
-            authMsg.textContent = 'An error occured'
+            authMsg.textContent = err
         }
     })
 
