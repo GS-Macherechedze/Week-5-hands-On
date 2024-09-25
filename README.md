@@ -11,5 +11,5 @@ The aim of this project is to introduce you to the connection of MySQL database 
 - Run the following command to initalize the backend <br>
         `npm init -y` 
 - Run the following command to install the necessary dependancies<br>
-        `npm install express mysql2 bcrypt nodemon cors dotenv`
+        `npm install express mysql2 bcrypt nodemon cors dotenv ejs`
 - Create a `server.js` file. 
